@@ -36,8 +36,8 @@ namespace webview_cef {
 	    bool m_init = false;
     };
 
-    void initCEFProcesses(CefMainArgs args);
-    void initCEFProcesses();
+    int initCEFProcesses(CefMainArgs args);
+    int initCEFProcesses();
     void startCEF();
     void doMessageLoopWork();
     void SwapBufferFromBgraToRgba(void* _dest, const void* _src, int width, int height);

@@ -289,10 +289,10 @@ void webview_cef_plugin_register_with_registrar(FlPluginRegistrar *registrar)
   g_object_unref(plugin);
 }
 
-FLUTTER_PLUGIN_EXPORT void initCEFProcesses(int argc, char **argv)
+FLUTTER_PLUGIN_EXPORT int initCEFProcesses(int argc, char **argv)
 {
   CefMainArgs main_args(argc, argv);
-  webview_cef::initCEFProcesses(main_args);
+  return webview_cef::initCEFProcesses(main_args);
 }
 
 FLUTTER_PLUGIN_EXPORT gboolean processKeyEventForCEF(GtkWidget *widget, GdkEventKey *event, gpointer data)

@@ -20,16 +20,22 @@ if [ ! -f "$file" ]; then
 fi
 
 # Check if the line initCEFProcesses(argc, argv); already exists in the file
-if grep -q '^[[:space:]]*initCEFProcesses(argc, argv);' "$file"; then
-  echo "The line 'initCEFProcesses(argc, argv);' already exists in the file."
+if grep -q '^[[:space:]]*int exit_code = initCEFProcesses(argc, argv);' "$file"; then
+  echo "The line 'int exit_code = initCEFProcesses(argc, argv);' already exists in the file."
 else
-  # Insert initCEFProcesses(argc, argv); before the first line starting with g_autoptr(
+  # remove "  initCEFProcesses(argc, argv);"
+  sed -i '/^[[:space:]]*initCEFProcesses(argc, argv);/d' "$file"
+
+  # Insert int exit_code = initCEFProcesses(argc, argv); before the first line starting with g_autoptr(
   awk '
     /^[[:space:]]*g_autoptr/ {
-      print "  initCEFProcesses(argc, argv);";
+      print "  int exit_code = initCEFProcesses(argc, argv);";
+      print "  if (exit_code >= 0) {";
+      print "    return exit_code;";
+      print "  }";
     }
     { print }
   ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 
-  echo "Added 'initCEFProcesses(argc, argv);' before the first line starting with 'g_autoptr('."
+  echo "Added 'int exit_code = initCEFProcesses(argc, argv);' before the first line starting with 'g_autoptr('."
 fi
