@@ -36,7 +36,10 @@ Inside your application folder, you need to add some lines in your `windows\runn
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
   //start cef deamon processes. MUST CALL FIRST
-  initCEFProcesses();
+  int exit_code = initCEFProcesses(instance);
+  if (exit_code >= 0) {
+    return exit_code;
+  }
 ```
 
 ```cpp
