@@ -7,9 +7,10 @@ void WebviewCefPluginCApiRegisterWithRegistrar(
 	webview_cef::WebviewCefPlugin::RegisterWithRegistrar(registrar);
 }
 
-FLUTTER_PLUGIN_EXPORT void initCEFProcesses()
+FLUTTER_PLUGIN_EXPORT int initCEFProcesses(HINSTANCE hInstance)
 {
-	webview_cef::initCEFProcesses();
+	CefMainArgs main_args(hInstance);
+	return webview_cef::initCEFProcesses(main_args);
 }
  
 FLUTTER_PLUGIN_EXPORT void handleWndProcForCEF(HWND hwnd, unsigned int message, unsigned __int64 wParam, __int64 lParam)
