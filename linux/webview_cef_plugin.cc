@@ -221,7 +221,7 @@ static void webview_cef_plugin_handle_method_call(
       // Extract remote debugging port
       FlValue *portValue = fl_value_lookup_string(args, "remoteDebuggingPort");
       if (portValue != nullptr && fl_value_get_type(portValue) == FL_VALUE_TYPE_INT) {
-        int port = fl_value_get_int(portValue);
+        int port = static_cast<int>(fl_value_get_int(portValue));
         self->m_plugin->setRemoteDebuggingPort(port);
       }
       

@@ -308,25 +308,31 @@ private:
     if (name == "initialize") {
         if (encodeArgs != nullptr && webview_value_get_type(encodeArgs) == Webview_Value_Type_Map) {
             // Extract remote debugging port
-            WValue* portValue = webview_value_get_value_by_key(encodeArgs, "remoteDebuggingPort");
+            WValue* keyPort = webview_value_new_string("remoteDebuggingPort");
+            WValue* portValue = webview_value_get_by_key(encodeArgs, keyPort);
             if (portValue != nullptr && webview_value_get_type(portValue) == Webview_Value_Type_Int) {
-                int port = webview_value_get_int(portValue);
+                int port = static_cast<int>(webview_value_get_int(portValue));
                 _plugin->setRemoteDebuggingPort(port);
             }
+            webview_value_unref(keyPort);
             
             // Extract remote debugging address
-            WValue* addressValue = webview_value_get_value_by_key(encodeArgs, "remoteDebuggingAddress");
+            WValue* keyAddress = webview_value_new_string("remoteDebuggingAddress");
+            WValue* addressValue = webview_value_get_by_key(encodeArgs, keyAddress);
             if (addressValue != nullptr && webview_value_get_type(addressValue) == Webview_Value_Type_String) {
                 std::string address = webview_value_get_string(addressValue);
                 _plugin->setRemoteDebuggingAddress(address);
             }
+            webview_value_unref(keyAddress);
             
             // Extract remote allow origins
-            WValue* originsValue = webview_value_get_value_by_key(encodeArgs, "remoteAllowOrigins");
+            WValue* keyOrigins = webview_value_new_string("remoteAllowOrigins");
+            WValue* originsValue = webview_value_get_by_key(encodeArgs, keyOrigins);
             if (originsValue != nullptr && webview_value_get_type(originsValue) == Webview_Value_Type_String) {
                 std::string origins = webview_value_get_string(originsValue);
                 _plugin->setRemoteAllowOrigins(origins);
             }
+            webview_value_unref(keyOrigins);
         }
         result(nil);
         webview_value_unref(encodeArgs);

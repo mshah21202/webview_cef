@@ -40,7 +40,7 @@ typedef void(^RetainSelfBlock)(void);
     //MUST align pixel to _pixelBuffer. Otherwise cause render issue. see https://www.codeprintr.com/thread/6563066.html about 16 bytes align
     size_t bytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(buf, 0);
     char* src = (char*) buffer;
-    int actureRowSize = width * 4;
+    int actureRowSize = static_cast<int>(width * 4);
     for(int line = 0; line < height; line++) {
         memcpy(copyBaseAddress, src, actureRowSize);
         src += actureRowSize;

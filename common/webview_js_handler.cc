@@ -230,7 +230,7 @@ bool CefJSBridge::EvaluateCallback(const CefString& callbackId, const JSValue& r
 
 int CefJSBridge::GetNextReqID()
 {
-    long nRet = ++s_nReqID;
+    int nRet = static_cast<int>(++s_nReqID);
     if (nRet < 0)
     {
         nRet = 0;
@@ -238,7 +238,7 @@ int CefJSBridge::GetNextReqID()
 
     while (nRet == 0)
     {
-        nRet = ++s_nReqID;
+        nRet = static_cast<int>(++s_nReqID);
     }
 
     return nRet;
