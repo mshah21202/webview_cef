@@ -44,6 +44,11 @@ public:
     void OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line) override;
     void SetUnSafelyTreatInsecureOriginAsSecure(const CefString& strFilterDomain);
 
+    // Remote debugging configuration methods
+    void SetRemoteDebuggingPort(int port);
+    void SetRemoteDebuggingAddress(const CefString& address);
+    void SetRemoteAllowOrigins(const CefString& origins);
+
     // CefRenderProcessHandler methods.
     void OnWebKitInitialized() override;
     void OnBrowserCreated(
@@ -81,6 +86,12 @@ private:
 
     CefRefPtr<WebviewHandler>       m_handler;                          //webview handler for main process
     std::shared_ptr<CefJSBridge>	m_render_js_bridge;                 //js bridge for render process
+
+    // Remote debugging configuration
+    int                             m_remoteDebuggingPort = 0;          //remote debugging port (0 = disabled)
+    CefString                       m_remoteDebuggingAddress;           //remote debugging address
+    CefString                       m_remoteAllowOrigins;               //remote debugging allowed origins
+
     // Include the default reference counting implementation.
     IMPLEMENT_REFCOUNTING(WebviewApp);
 };

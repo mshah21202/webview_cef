@@ -238,6 +238,42 @@ namespace webview_cef {
 	void WebviewCefPlugin::HandleMethodCall(
 		const flutter::MethodCall<flutter::EncodableValue>& method_call,
 		std::shared_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+		
+		// Handle initialize method specially for remote debugging configuration
+		if (method_call.method_name() == "initialize") {
+			const auto* arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+			if (arguments != nullptr) {
+				// Extract remote debugging port
+				auto portIt = arguments->find(flutter::EncodableValue("remoteDebuggingPort"));
+				if (portIt != arguments->end() && portIt->second.IsNull() == false) {
+					auto port = std::get_if<int>(&portIt->second);
+					if (port != nullptr) {
+						m_plugin->setRemoteDebuggingPort(*port);
+					}
+				}
+				
+				// Extract remote debugging address
+				auto addressIt = arguments->find(flutter::EncodableValue("remoteDebuggingAddress"));
+				if (addressIt != arguments->end() && addressIt->second.IsNull() == false) {
+					auto address = std::get_if<std::string>(&addressIt->second);
+					if (address != nullptr) {
+						m_plugin->setRemoteDebuggingAddress(*address);
+					}
+				}
+				
+				// Extract remote allow origins
+				auto originsIt = arguments->find(flutter::EncodableValue("remoteAllowOrigins"));
+				if (originsIt != arguments->end() && originsIt->second.IsNull() == false) {
+					auto origins = std::get_if<std::string>(&originsIt->second);
+					if (origins != nullptr) {
+						m_plugin->setRemoteAllowOrigins(*origins);
+					}
+				}
+			}
+			result->Success(nullptr);
+			return;
+		}
+		
 		WValue *encodeArgs = encode_flvalue_to_wvalue(const_cast<flutter::EncodableValue *>(method_call.arguments()));
 		m_plugin->HandleMethodCall(method_call.method_name(), encodeArgs, [=](int ret, WValue* args){
 			if (ret > 0){

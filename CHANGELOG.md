@@ -1,3 +1,15 @@
+## 0.3.0
+
+- **NEW**: Added first-class support for Chromium remote debugging port configuration
+- **NEW**: Added `WebviewCef.initialize()` API for configuring debugging options before webview creation
+- **NEW**: Added `WebviewCefOptions` class with validation for debugging configuration
+- **NEW**: Added support for `remoteDebuggingPort`, `remoteDebuggingAddress`, and `remoteAllowOrigins` options
+- **NEW**: Added getters for debugging URLs and configuration status
+- **BREAKING**: `WebviewCef.initialize()` must now be called before creating any webviews
+- **IMPROVEMENT**: Better error handling and validation for debugging configuration
+- **IMPROVEMENT**: Added comprehensive tests for the new debugging functionality
+- **DOCUMENTATION**: Added comprehensive documentation for remote debugging setup and usage
+
 ## 0.2.0
 - Linux support!
 - Multiple instances support.

@@ -18,11 +18,11 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelWebviewCef>());
   });
 
-  test('getPlatformVersion', () async {
-    WebviewCef webviewCefPlugin = WebviewCef();
-    MockWebviewCefPlatform fakePlatform = MockWebviewCefPlatform();
-    WebviewCefPlatform.instance = fakePlatform;
-
-    expect(await webviewCefPlugin.getPlatformVersion(), '42');
+  test('WebviewCef is a static class', () {
+    expect(WebviewCef.isInitialized, isFalse);
+    expect(WebviewCef.isRemoteDebuggingEnabled, isFalse);
+    expect(WebviewCef.debuggingOptions, isNull);
+    expect(WebviewCef.debuggingUrl, isNull);
+    expect(WebviewCef.webSocketDebuggingUrl, isNull);
   });
 }

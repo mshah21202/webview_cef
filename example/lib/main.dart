@@ -4,7 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:webview_cef/webview_cef.dart';
 import 'package:webview_cef/src/webview_inject_user_script.dart';
 
-void main() {
+void main() async {
+  // Initialize webview_cef with remote debugging enabled
+  await WebviewCef.initialize(
+    WebviewCefOptions(
+      remoteDebuggingPort: 9222,
+      remoteDebuggingAddress: '127.0.0.1',
+      remoteAllowOrigins: 'http://127.0.0.1:9222',
+    ),
+  );
+  
+  // Print debugging information
+  if (WebviewCef.isRemoteDebuggingEnabled) {
+    print('Remote debugging enabled at: ${WebviewCef.debuggingUrl}');
+    print('WebSocket debugging URL: ${WebviewCef.webSocketDebuggingUrl}');
+    print('To connect DevTools, visit: ${WebviewCef.debuggingUrl}/json/version');
+  }
+  
   runApp(const MyApp());
 }
 

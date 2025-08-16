@@ -213,6 +213,36 @@ static void webview_cef_plugin_handle_method_call(
     FlMethodCall *method_call)
 {
   const gchar *method = fl_method_call_get_name(method_call);
+  
+  // Handle initialize method specially for remote debugging configuration
+  if (g_strcmp0(method, "initialize") == 0) {
+    FlValue *args = fl_method_call_get_args(method_call);
+    if (fl_value_get_type(args) == FL_VALUE_TYPE_MAP) {
+      // Extract remote debugging port
+      FlValue *portValue = fl_value_lookup_string(args, "remoteDebuggingPort");
+      if (portValue != nullptr && fl_value_get_type(portValue) == FL_VALUE_TYPE_INT) {
+        int port = fl_value_get_int(portValue);
+        self->m_plugin->setRemoteDebuggingPort(port);
+      }
+      
+      // Extract remote debugging address
+      FlValue *addressValue = fl_value_lookup_string(args, "remoteDebuggingAddress");
+      if (addressValue != nullptr && fl_value_get_type(addressValue) == FL_VALUE_TYPE_STRING) {
+        const gchar *address = fl_value_get_string(addressValue);
+        self->m_plugin->setRemoteDebuggingAddress(std::string(address));
+      }
+      
+      // Extract remote allow origins
+      FlValue *originsValue = fl_value_lookup_string(args, "remoteAllowOrigins");
+      if (originsValue != nullptr && fl_value_get_type(originsValue) == FL_VALUE_TYPE_STRING) {
+        const gchar *origins = fl_value_get_string(originsValue);
+        self->m_plugin->setRemoteAllowOrigins(std::string(origins));
+      }
+    }
+    fl_method_call_respond_success(method_call, nullptr, nullptr);
+    return;
+  }
+  
   WValue *encodeArgs = encode_flvalue_to_wvalue(fl_method_call_get_args(method_call));
   g_object_ref(method_call);
   self->m_plugin->HandleMethodCall(method, encodeArgs, [=](int ret, WValue *responseArgs){

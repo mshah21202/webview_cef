@@ -26,6 +26,11 @@ namespace webview_cef {
         void setCreateTextureFunc(std::function<std::shared_ptr<WebviewTexture>()> func);
         bool getAnyBrowserFocused();
 
+        // Remote debugging configuration methods
+        void setRemoteDebuggingPort(int port);
+        void setRemoteDebuggingAddress(const std::string& address);
+        void setRemoteAllowOrigins(const std::string& origins);
+
     private :
         int cursorAction(WValue *args, std::string name);
     	std::function<void(std::string, WValue*)> m_invokeFunc;

@@ -303,6 +303,36 @@ private:
 - (void) handleMethodCallWrapper: (FlutterMethodCall*)call result:(FlutterResult)result{
     std::string name = std::string([call.method cStringUsingEncoding:NSUTF8StringEncoding]);
     WValue *encodeArgs = [CefWrapper encode_flvalue_to_wvalue:call.arguments];
+    
+    // Handle initialize method specially for remote debugging configuration
+    if (name == "initialize") {
+        if (encodeArgs != nullptr && webview_value_get_type(encodeArgs) == Webview_Value_Type_Map) {
+            // Extract remote debugging port
+            WValue* portValue = webview_value_get_value_by_key(encodeArgs, "remoteDebuggingPort");
+            if (portValue != nullptr && webview_value_get_type(portValue) == Webview_Value_Type_Int) {
+                int port = webview_value_get_int(portValue);
+                _plugin->setRemoteDebuggingPort(port);
+            }
+            
+            // Extract remote debugging address
+            WValue* addressValue = webview_value_get_value_by_key(encodeArgs, "remoteDebuggingAddress");
+            if (addressValue != nullptr && webview_value_get_type(addressValue) == Webview_Value_Type_String) {
+                std::string address = webview_value_get_string(addressValue);
+                _plugin->setRemoteDebuggingAddress(address);
+            }
+            
+            // Extract remote allow origins
+            WValue* originsValue = webview_value_get_value_by_key(encodeArgs, "remoteAllowOrigins");
+            if (originsValue != nullptr && webview_value_get_type(originsValue) == Webview_Value_Type_String) {
+                std::string origins = webview_value_get_string(originsValue);
+                _plugin->setRemoteAllowOrigins(origins);
+            }
+        }
+        result(nil);
+        webview_value_unref(encodeArgs);
+        return;
+    }
+    
     self->_plugin->HandleMethodCall(name, encodeArgs, [=](int ret, WValue* args){
         if(ret != 0){
             result([CefWrapper encode_wvalue_to_flvalue:args]);

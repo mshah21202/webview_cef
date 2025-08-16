@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:webview_cef/src/webview_inject_user_script.dart';
+import 'package:webview_cef/src/webview_cef_core.dart';
 
 import 'webview.dart';
 
@@ -30,9 +31,14 @@ class WebviewManager extends ValueNotifier<bool> {
     Widget? loading,
     InjectUserScripts? injectUserScripts,
   }) {
+    // Check if WebviewCef.initialize() was called
+    if (!WebviewCef.isInitialized) {
+      throw StateError('WebviewCef.initialize() must be called before creating webviews. '
+          'Call WebviewCef.initialize() in your main() function or before creating any webviews.');
+    }
+
     int browserIndex = nextIndex++;
-    final controller =
-        WebViewController(pluginChannel, browserIndex, loading: loading);
+    final controller = WebViewController(pluginChannel, browserIndex, loading: loading);
     _tempWebViews[browserIndex] = controller;
     _tempInjectUserScripts[browserIndex] = injectUserScripts;
 
@@ -85,33 +91,21 @@ class WebviewManager extends ValueNotifier<bool> {
     switch (call.method) {
       case "urlChanged":
         int browserId = call.arguments["browserId"] as int;
-        _webViews[browserId]
-            ?.listener
-            ?.onUrlChanged
-            ?.call(call.arguments["url"] as String);
+        _webViews[browserId]?.listener?.onUrlChanged?.call(call.arguments["url"] as String);
         return;
       case "titleChanged":
         int browserId = call.arguments["browserId"] as int;
-        _webViews[browserId]
-            ?.listener
-            ?.onTitleChanged
-            ?.call(call.arguments["title"] as String);
+        _webViews[browserId]?.listener?.onTitleChanged?.call(call.arguments["title"] as String);
         return;
       case "onConsoleMessage":
         int browserId = call.arguments["browserId"] as int;
-        _webViews[browserId]?.listener?.onConsoleMessage?.call(
-            call.arguments["level"] as int,
-            call.arguments["message"] as String,
-            call.arguments["source"] as String,
-            call.arguments["line"] as int);
+        _webViews[browserId]?.listener?.onConsoleMessage?.call(call.arguments["level"] as int, call.arguments["message"] as String,
+            call.arguments["source"] as String, call.arguments["line"] as int);
         return;
       case 'javascriptChannelMessage':
         int browserId = call.arguments['browserId'] as int;
-        _webViews[browserId]?.onJavascriptChannelMessage?.call(
-            call.arguments['channel'] as String,
-            call.arguments['message'] as String,
-            call.arguments['callbackId'] as String,
-            call.arguments['frameId'] as String);
+        _webViews[browserId]?.onJavascriptChannelMessage?.call(call.arguments['channel'] as String, call.arguments['message'] as String,
+            call.arguments['callbackId'] as String, call.arguments['frameId'] as String);
         return;
       case 'onTooltip':
         int browserId = call.arguments['browserId'] as int;
@@ -119,9 +113,7 @@ class WebviewManager extends ValueNotifier<bool> {
         return;
       case 'onCursorChanged':
         int browserId = call.arguments['browserId'] as int;
-        _webViews[browserId]
-            ?.onCursorChanged
-            ?.call(call.arguments['type'] as int);
+        _webViews[browserId]?.onCursorChanged?.call(call.arguments['type'] as int);
         return;
       case 'onFocusedNodeChangeMessage':
         int browserId = call.arguments['browserId'] as int;
@@ -130,9 +122,7 @@ class WebviewManager extends ValueNotifier<bool> {
         return;
       case 'onImeCompositionRangeChangedMessage':
         int browserId = call.arguments['browserId'] as int;
-        _webViews[browserId]
-            ?.onImeCompositionRangeChangedMessage
-            ?.call(call.arguments['x'] as int, call.arguments['y'] as int);
+        _webViews[browserId]?.onImeCompositionRangeChangedMessage?.call(call.arguments['x'] as int, call.arguments['y'] as int);
         return;
       case 'onLoadStart':
         int browserId = call.arguments["browserId"] as int;
@@ -140,8 +130,7 @@ class WebviewManager extends ValueNotifier<bool> {
 
         await _injectUserScriptIfNeeds(browserId, _injectUserScripts[browserId]?.retrieveLoadStartInjectScripts() ?? []);
 
-        WebViewController controller =
-        _webViews[browserId] as WebViewController;
+        WebViewController controller = _webViews[browserId] as WebViewController;
         _webViews[browserId]?.listener?.onLoadStart?.call(controller, urlId);
         return;
       case 'onLoadEnd':
@@ -150,8 +139,7 @@ class WebviewManager extends ValueNotifier<bool> {
 
         await _injectUserScriptIfNeeds(browserId, _injectUserScripts[browserId]?.retrieveLoadEndInjectScripts() ?? []);
 
-        WebViewController controller =
-        _webViews[browserId] as WebViewController;
+        WebViewController controller = _webViews[browserId] as WebViewController;
         _webViews[browserId]?.listener?.onLoadEnd?.call(controller, urlId);
         return;
       default:
@@ -163,9 +151,11 @@ class WebviewManager extends ValueNotifier<bool> {
 
     await _webViews[browserId]?.ready;
 
-    scripts.forEach((script) async {
-      await _webViews[browserId]?.executeJavaScript(script.script);
-    },);
+    scripts.forEach(
+      (script) async {
+        await _webViews[browserId]?.executeJavaScript(script.script);
+      },
+    );
   }
 
   Future<void> setCookie(String domain, String key, String val) async {

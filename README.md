@@ -91,6 +91,64 @@ Then follow the below steps inside the `macos/` folder <b>of the cloned reposito
 
 For Linux, just adding `webview_cef` to your `pubspec.yaml` (e.g. by running `flutter pub add webview_cef`) does the job.
 
+## Remote Debugging
+
+webview_cef supports Chrome DevTools Protocol for remote debugging, allowing IDEs and debugging tools to connect to webviews for inspection and debugging.
+
+### Enabling Remote Debugging
+
+To enable remote debugging, you must call `WebviewCef.initialize()` before creating any webviews:
+
+```dart
+import 'package:webview_cef/webview_cef.dart';
+
+void main() async {
+  // Initialize with remote debugging enabled
+  await WebviewCef.initialize(
+    WebviewCefOptions(
+      remoteDebuggingPort: 9222,
+      remoteDebuggingAddress: '127.0.0.1',
+      remoteAllowOrigins: 'http://127.0.0.1:9222',
+    ),
+  );
+  
+  runApp(MyApp());
+}
+```
+
+### Configuration Options
+
+- **`remoteDebuggingPort`** (int, 1024-65535): The port number for the debugging server
+- **`remoteDebuggingAddress`** (string, default: '127.0.0.1'): The address to bind the server to
+- **`remoteAllowOrigins`** (string, optional): Allowed origins for CORS (required by some Chromium builds)
+
+### Connecting DevTools
+
+Once enabled, you can connect Chrome DevTools or other debugging tools:
+
+1. **Discover available targets**: Visit `http://127.0.0.1:9222/json/version` to get debugging information
+2. **Connect to a webview**: Use the `webSocketDebuggerUrl` from the JSON response
+3. **Open DevTools**: Navigate to `http://127.0.0.1:9222/json/list` to see all available targets
+
+### Security Considerations
+
+- **Default binding**: The debugging server binds to `127.0.0.1` by default for security
+- **External access**: Only change the binding address if you understand the security implications
+- **Port availability**: Ensure the requested port is not already in use by another service
+
+### Example Usage
+
+```dart
+// Check if debugging is enabled
+if (WebviewCef.isRemoteDebuggingEnabled) {
+  print('Debugging URL: ${WebviewCef.debuggingUrl}');
+  print('WebSocket URL: ${WebviewCef.webSocketDebuggingUrl}');
+}
+
+// The debugging server is automatically started when CEF initializes
+// No additional configuration is needed in your webview code
+```
+
 ## TODOs
 
 > Pull requests are welcome.

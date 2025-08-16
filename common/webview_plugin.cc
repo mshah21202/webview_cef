@@ -243,6 +243,32 @@ namespace webview_cef {
 			initCallback();
 			result(1, nullptr);
 		}
+		else if (name.compare("initialize") == 0) {
+			// Handle remote debugging configuration
+			if (values != nullptr && webview_value_get_type(values) == Webview_Value_Type_Map) {
+				// Extract remote debugging port
+				WValue* portValue = webview_value_get_value_by_key(values, "remoteDebuggingPort");
+				if (portValue != nullptr && webview_value_get_type(portValue) == Webview_Value_Type_Int) {
+					int port = webview_value_get_int(portValue);
+					setRemoteDebuggingPort(port);
+				}
+				
+				// Extract remote debugging address
+				WValue* addressValue = webview_value_get_value_by_key(values, "remoteDebuggingAddress");
+				if (addressValue != nullptr && webview_value_get_type(addressValue) == Webview_Value_Type_String) {
+					std::string address = webview_value_get_string(addressValue);
+					setRemoteDebuggingAddress(address);
+				}
+				
+				// Extract remote allow origins
+				WValue* originsValue = webview_value_get_value_by_key(values, "remoteAllowOrigins");
+				if (originsValue != nullptr && webview_value_get_type(originsValue) == Webview_Value_Type_String) {
+					std::string origins = webview_value_get_string(originsValue);
+					setRemoteAllowOrigins(origins);
+				}
+			}
+			result(1, nullptr);
+		}
 		else if (name.compare("quit") == 0) {
 			//only call this method when you want to quit the app
 			stopCEF();
@@ -511,8 +537,26 @@ namespace webview_cef {
 		}
 		return false;
 	}
-	
-	int WebviewPlugin::cursorAction(WValue *args, std::string name) {
+
+	void WebviewPlugin::setRemoteDebuggingPort(int port) {
+    if (app) {
+        app->SetRemoteDebuggingPort(port);
+    }
+}
+
+void WebviewPlugin::setRemoteDebuggingAddress(const std::string& address) {
+    if (app) {
+        app->SetRemoteDebuggingAddress(address);
+    }
+}
+
+void WebviewPlugin::setRemoteAllowOrigins(const std::string& origins) {
+    if (app) {
+        app->SetRemoteAllowOrigins(origins);
+    }
+}
+
+int WebviewPlugin::cursorAction(WValue *args, std::string name) {
 		if (!args || webview_value_get_len(args) != 3) {
 			return 0;
 		}

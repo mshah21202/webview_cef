@@ -154,6 +154,19 @@ void WebviewApp::OnBeforeCommandLineProcessing(const CefString &process_type, Ce
 			command_line->AppendSwitchWithValue("unsafely-treat-insecure-origin-as-secure",
                 m_strFilterDomain);
 		}
+
+        // Remote debugging configuration
+        if (m_remoteDebuggingPort > 0) {
+            command_line->AppendSwitchWithValue("remote-debugging-port", std::to_string(m_remoteDebuggingPort));
+            
+            if (!m_remoteDebuggingAddress.empty()) {
+                command_line->AppendSwitchWithValue("remote-debugging-address", m_remoteDebuggingAddress.ToString());
+            }
+            
+            if (!m_remoteAllowOrigins.empty()) {
+                command_line->AppendSwitchWithValue("remote-allow-origins", m_remoteAllowOrigins.ToString());
+            }
+        }
     }
 
 #ifdef __APPLE__
@@ -335,4 +348,16 @@ bool WebviewApp::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefP
     }
 
     return false;
+}
+
+void WebviewApp::SetRemoteDebuggingPort(int port) {
+    m_remoteDebuggingPort = port;
+}
+
+void WebviewApp::SetRemoteDebuggingAddress(const CefString& address) {
+    m_remoteDebuggingAddress = address;
+}
+
+void WebviewApp::SetRemoteAllowOrigins(const CefString& origins) {
+    m_remoteAllowOrigins = origins;
 }
